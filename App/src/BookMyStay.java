@@ -1,3 +1,4 @@
+import java.util.HashMap;
 abstract class Room {
     protected int beds;
     protected int size;
@@ -32,29 +33,40 @@ class SuiteRoom extends Room {
         super(3, 750, 5000.0);
     }
 }
+class RoomInventory {
+    private HashMap<String, Integer> inventory;
+    public RoomInventory() {
+        inventory = new HashMap<>();
+        inventory.put("Single Room", 5);
+        inventory.put("Double Room", 3);
+        inventory.put("Suite Room", 2);
+    }
+    public int getAvailability(String roomType) {
+        return inventory.get(roomType);
+    }
+    public void updateAvailability(String roomType, int count) {
+        inventory.put(roomType, count);
+    }
+}
 public class BookMyStay {
     public static void main(String[] args) {
-        System.out.println("Hotel Room Initialization\n");
+        System.out.println("Hotel Room Inventory Status\n");
         Room single = new SingleRoom();
         Room doubleRoom = new DoubleRoom();
         Room suite = new SuiteRoom();
-        int singleAvailable = 5;
-        int doubleAvailable = 3;
-        int suiteAvailable = 2;
+        RoomInventory inventory = new RoomInventory();
         System.out.println("Single Room:");
         System.out.println("Beds: " + single.getBeds());
         System.out.println("Size: " + single.getSize() + " sqft");
         System.out.println("Price per night: " + single.getPrice());
-        System.out.println("Available: " + singleAvailable + "\n");
+        System.out.println("Available Rooms: " + inventory.getAvailability("Single Room") + "\n");
         System.out.println("Double Room:");
         System.out.println("Beds: " + doubleRoom.getBeds());
         System.out.println("Size: " + doubleRoom.getSize() + " sqft");
         System.out.println("Price per night: " + doubleRoom.getPrice());
-        System.out.println("Available: " + doubleAvailable + "\n");
+        System.out.println("Available Rooms: " + inventory.getAvailability("Double Room") + "\n");
         System.out.println("Suite Room:");
         System.out.println("Beds: " + suite.getBeds());
         System.out.println("Size: " + suite.getSize() + " sqft");
         System.out.println("Price per night: " + suite.getPrice());
-        System.out.println("Available: " + suiteAvailable);
-    }
-}
+        System.out.println("Available Rooms: " + inventory.getAvailability("Suite Room"));}}
