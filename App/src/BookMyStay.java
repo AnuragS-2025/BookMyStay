@@ -1,62 +1,81 @@
 import java.util.*;
-class Reservation {
-    private String guestName;
-    private String roomType;
-    public Reservation(String guestName, String roomType) {
-        this.guestName = guestName;
-        this.roomType = roomType;
-    }
-    public String getGuestName() {
-        return guestName;
-    }
-    public String getRoomType() {
-        return roomType;
+class InvalidBookingException extends Exception {
+    public InvalidBookingException(String message) {
+        super(message);
     }
 }
-class BookingHistory {
-    private List<Reservation> confirmedReservations;
-    public BookingHistory() {
-        confirmedReservations = new ArrayList<>();
-    }
-    public void addReservation(Reservation reservation) {
-        confirmedReservations.add(reservation);
-    }
-    public List<Reservation> getConfirmedReservations() {
-        return confirmedReservations;
-    }
-}
-class BookingReportService {
-    public void generateReport(BookingHistory history) {
-        System.out.println("\nBooking History Report");
 
-        for (Reservation res : history.getConfirmedReservations()) {
-            System.out.println(
-                    "Guest: " + res.getGuestName() +
-                            ", Room Type: " + res.getRoomType()
-            );
+class RoomInventory {
+
+    private Set<String> availableRoomTypes;
+
+    public RoomInventory() {
+        availableRoomTypes = new HashSet<>();
+        availableRoomTypes.add("Single");
+        availableRoomTypes.add("Double");
+        availableRoomTypes.add("Suite");
+    }
+
+    public boolean isValidRoomType(String roomType) {
+        return availableRoomTypes.contains(roomType);
+    }
+}
+class ReservationValidator {
+
+    public void validate(
+            String guestName,
+            String roomType,
+            RoomInventory inventory
+    ) throws InvalidBookingException {
+
+        if (guestName == null || guestName.trim().isEmpty()) {
+            throw new InvalidBookingException("Guest name cannot be empty.");
+        }
+
+        if (!inventory.isValidRoomType(roomType)) {
+            throw new InvalidBookingException("Invalid room type selected.");
         }
     }
 }
 
-/**
- * MAIN CLASS - BookMyStay
- */
+class BookingRequestQueue {
+
+    public void addRequest(String guestName, String roomType) {
+        System.out.println("Booking request accepted for " + guestName +
+                " (" + roomType + ")");
+    }
+}
 public class BookMyStay {
 
     public static void main(String[] args) {
 
-        System.out.println("Booking History and Reporting\n");
+        System.out.println("Booking Validation");
 
-        // Initialize history
-        BookingHistory history = new BookingHistory();
+        Scanner scanner = new Scanner(System.in);
 
-        // Add confirmed reservations
-        history.addReservation(new Reservation("Abhi", "Single"));
-        history.addReservation(new Reservation("Subha", "Double"));
-        history.addReservation(new Reservation("Vanmathi", "Suite"));
+        RoomInventory inventory = new RoomInventory();
+        ReservationValidator validator = new ReservationValidator();
+        BookingRequestQueue bookingQueue = new BookingRequestQueue();
 
-        // Generate report
-        BookingReportService reportService = new BookingReportService();
-        reportService.generateReport(history);
+        try {
+            // User input
+            System.out.print("Enter guest name: ");
+            String guestName = scanner.nextLine();
+
+            System.out.print("Enter room type (Single/Double/Suite): ");
+            String roomType = scanner.nextLine();
+
+            // Validate input
+            validator.validate(guestName, roomType, inventory);
+
+            // If valid → process request
+            bookingQueue.addRequest(guestName, roomType);
+
+        } catch (InvalidBookingException e) {
+            // Graceful failure
+            System.out.println("Booking failed: " + e.getMessage());
+        } finally {
+            scanner.close();
+        }
     }
 }
